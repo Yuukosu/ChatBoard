@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title><%= @title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="/stylesheets/main.css">
+  </head>
+  <body>
+    <div class="container-fluid">
+      <header id="header" class="fixed-top">
+        <nav class="navbar navbar-light bg-light">
+          <a class="navbar-brand" href="/" style="font-size: 30px; margin-left: 30px;"><%= @header_title %></a>
+          <ul class="list-group list-group-horizontal" style="margin-right: 30px;">
+            <li class="list-group-item"><a href="#">ログイン</a></li>
+            <li class="list-group-item"><a href="#">検索</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main id="main" class="position-absolute" style="left: 0; padding-top: 100px; padding-bottom: 100px;">
+      </main>
+
+      <footer id="footer" class="fixed-bottom">
+        <article class="text-center">
+          © Yuukosu<br>
+          転載禁止
+        </article>
+      </footer>
+    </div>
+  </body>
+</html>

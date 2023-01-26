@@ -31,45 +31,46 @@
           </ul>
         </nav>
       </header>
-
       <main style="padding-top: 100px; padding-bottom: 100px;">
-        <div class="row d-flex d-column">
-          <% if @threads.length > 0 %>
-            <ul class="col-9 d-grid gap-1" style="list-style: none;">
-              <% @threads[0..9].reverse_each do |thread| %>
-                <li>
-                  <a class="link-dark" style="text-decoration: none;" href="#">
-                    <div class="p-3 bg-light border" style="background-color: white;">
-                      <span class="text-nowrap overflow-hidden" style="color: navy;">
-                        <%= (thread.title.length > 32 ? thread.title[0, 32] + "..." : thread.title) + " (#{thread.messages.length})" %><br>
-                      </span>
-                      <span style="color: green; margin-right: 10px;">
-                        <%= ChatBoard::Board.get(thread.board) %>
-                      </span>
-                      <span style="color: gray;">
-                        <%= thread.getStrTime %>
-                      </span>
-                    </div>
-                  </a>
-                </li>
-              <% end %>
-            </ul>
-          <% else %>
-            <div class="col">
-              <p class="text-center">現在この板のスレッドはありません。</p>
-            </div>
-          <% end %>
-
-          <ul class="col-2" style="list-style: none; margin-right: 30px; margin-left: 0px; background-color: white;">
-            <% @boards.reverse_each do |board| %>
-              <li>
-                <a class="link-primary" href="/index?board=<%= board %>"><%= ChatBoard::Board.get(board) %></a>
-              </li>
+        <div class="d-flex justify-content-between">
+          <div>
+            <% if @currentBoard != nil %>
+              <h2 style="margin-bottom: 30px;">
+                <%= @currentBoard %>
+              </h2>
             <% end %>
-          </ul>
+            <% if @threads.length > 0 %>
+              <% @threads.reverse_each do |thread| %>
+                <a class="link-dark" style="text-decoration: none;" href="/thread/<%= thread.id %>">
+                  <div class="border bg-light p-3" style="width: 800px; margin-bottom: 10px; background-color: white;">
+                    <span class="text-nowrap overflow-hidden" style="color: navy;">
+                      <%= (thread.title.length > 32 ? thread.title[0, 32] + "..." : thread.title) + " (#{thread.chatMessages.length})" %><br>
+                    </span>
+                    <span style="color: green; margin-right: 10px;">
+                      <%= ChatBoard::Board.get(thread.board) %>
+                    </span>
+                    <span style="color: gray;">
+                      <%= ChatBoard::Utils.toDisplayTime(thread.time_stamp) %>
+                    </span>
+                  </div>
+                </a>
+              <% end %>
+            <% else %>
+              <p>現在この板のスレッドはありません。</p>
+            <% end %>
+          </div>
+          <div class="border bg-light" style="width: 300px; height: 600px;">
+            <% @boards.reverse_each do |board| %>
+              <div class="p-1">
+                <a class="link-primary" href="/index?board=<%= board %>">
+                  <%= ChatBoard::Board.get(board) %>
+                </a>
+              </div>
+            <% end %>
+          </div>
         </div>
+      </div>
       </main>
-
       <footer class="fixed-bottom" style="padding: 16px; background-color: ghostwhite;">
         <article class="text-center">
           © Yuukosu<br>

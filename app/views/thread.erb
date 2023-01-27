@@ -12,26 +12,23 @@
           <a class="navbar-brand fs-1 fw-bold" href="/" style="margin-left: 30px;">
             <%= @header_title %>
           </a>
-          <ul class="list-group list-group-horizontal" style="margin-right: 30px;">
-            <li class="list-group-item" style="border: none; background-color: ghostwhite;">
-              <form action="/api/search" method="post">
-                <div class="form-group d-flex">
-                  <label for="search-box"></label>
-                  <input class="form-control" type="form-control" id="search-box" placeholder="スレッド検索" size="16" required>
-                  <button class="btn btn-outline-dark text-nowrap" type="submit">
-                    <img src="/icons/search.svg" alt="search-icon">
-                    検索
-                  </button>
-                </div>
-              </form>
-            </li>
-            <li class="list-group-item" style="border: none; background-color: ghostwhite;">
-              <a class="nav-link text-decoration-none" href="#">ログイン</a>
-            </li>
+          <div class="d-flex" style="margin-right: 30px;">
+            <form id="search-form" style="margin-right: 10px;">
+              <div class="d-flex">
+                <label class="form-label" for="search-box" hidden>検索</label>
+                <input class="form-control" type="form-control" id="search-box" placeholder="スレッド検索" size="16" required>
+                <button class="btn btn-outline-dark text-nowrap" type="submit">
+                  <img src="/icons/search.svg" alt="search-icon">
+                  検索
+                </button>
+              </div>
+            </form>
+            <a class="nav-link text-decoration-none" href="/create_thread">スレッド作成</a>
+            <a class="nav-link text-decoration-none" href="#">ログイン</a>
           </ul>
         </nav>
       </header>
-      <main style="padding-top: 100px; padding-bottom: 100px;">
+     <main style="padding-top: 100px; padding-bottom: 100px;">
         <% if @thread.nil? %>
           <p class="text-center">スレッドが見つかりませんでした。</p>
         <% else %>
@@ -44,7 +41,7 @@
           </div>
           <div style="margin-top: 15px; margin-bottom: 15px;">
             <% @thread.chatMessages.each_with_index do |chatMessage, index| %>
-              <div class="border" style="padding: 10px; margin-bottom: 10px; width: 800px; background-color: white;">
+              <div class="border bg-light p-3" style="min-width: 800px; max-width: 1000px; margin-bottom: 10px;">
                 <span><%= index + 1 %></span>
                 <span style="margin-left: 5px; color: green;"><%= chatMessage.user.name %></span>
                 <span style="margin-left: 5px; color: black;"><%= ChatBoard::Utils.toDisplayTime(chatMessage.time_stamp) %></span>
@@ -53,15 +50,17 @@
               </div>
             <% end %>
           </div>
-          <div class="border border-start-0 border-end-0 border-bottom-0 border-dark" style="padding-top: 30px;">
-            <form id="comment-form">
-              <div class="m-auto" style="text-align: center; width: 500px;">
-                <label for="comment" class="form-label" hidden></label>
-                <textarea type="text" class="form-control" id="comment" name="comment" placeholder="コメント内容" rows="3" required></textarea>
-                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">書き込む</button>
-              </div>
-            </form>
-          </div>
+          <% if @thread.chatMessages.length < 1000 %>
+            <div class="border border-start-0 border-end-0 border-bottom-0 border-dark" style="padding-top: 30px;">
+              <form id="comment-form">
+                <div class="m-auto" style="text-align: center; max-width: 500px;">
+                  <label for="comment" class="form-label" hidden></label>
+                  <textarea type="text" class="form-control" id="comment" name="comment" placeholder="コメント内容" maxlength="1000" minlength="1" rows="3" required></textarea>
+                  <button type="submit" class="btn btn-primary" style="margin-top: 10px;">書き込む</button>
+                </div>
+              </form>
+            </div>
+          <% end %>
         <% end %>
       </main>
       <footer class="fixed-bottom" style="padding: 16px; background-color: ghostwhite;">

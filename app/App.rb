@@ -8,11 +8,25 @@ $userManager = ChatBoard::ChatUserManager.new
 
 configure :development do
   register Sinatra::Reloader
-end
 
-get "/reset" do
-  $threadManager.chatThreads.clear
-  redirect "/index"
+  get "/reset" do
+    $threadManager.chatThreads.clear
+    redirect "/index"
+  end
+
+  post "/999/:id" do |id|
+    chatThread = $threadManager.getChatThread(id)
+
+    if chatThread.nil?
+      halt 400, "Failure"
+    end
+
+    while chatThread.chatMessages.length < 999
+      chatThread.postChatMessage($userManager.god, "埋め")
+    end
+
+    halt 200, "Success"
+  end
 end
 
 get "/" do
@@ -46,56 +60,73 @@ get "/thread/:id" do |id|
   erb:thread
 end
 
+get "/create_thread" do
+  @title = "スレッド作成"
+  @header_title = "掲示板"
+  @boards = ChatBoard::Board.all.sort
+
+  erb:create_thread
+end
+
 post "/api/create_thread" do
-  title = params[:title]
+  title = ChatBoard::Utils.escapeHtml(params[:title])
   board = params[:board]
-  message = params[:message]
+  message = ChatBoard::Utils.escapeHtml(params[:message])
+  response = {
+    status: "failure"
+  }
 
   if title.nil? || board.nil? || message.nil?
-    halt 400, "Bad request"
+    halt 400, response.to_json
   end
 
-  if title.length > 64
-    halt 400, "Title too long"
+  if title.length > 100 || title.length < 1
+    halt 400, response.to_json
   end
 
   if ChatBoard::Board.get(board).nil?
-    halt 400, "Invalid board number"
+    halt 400, response.to_json
   end
 
-  if message.length > 1000
-    halt 400, "Message too long"
+  if message.length > 1000 || message.length < 1
+    halt 400, response.to_json
   end
 
   user = $userManager.getUser(request.ip, true)
   chatThread = $threadManager.createChatThread(title, board, ChatBoard::ChatMessage.new(user, message))
+  response = {
+    status: "success",
+    id: chatThread.id
+  }
 
-  halt 200, "ID: #{chatThread.id}, Title: #{chatThread.title}, Board: #{chatThread.board}, Message: #{chatThread.chatMessages[0].message}, CreateTime: #{chatThread.time_stamp.strftime("%Y/%m/%d %H:%M:%S")}"
+  halt 200, response.to_json
 end
 
 post "/api/post_message/:id" do |id|
-  message = params[:message]
-  message = message.gsub("&", "%amp;")
-  message = message.gsub("<", "&lt;")
-  message = message.gsub(">", "&gt;")
-  message = message.gsub("\"", "&quot;")
-  message = message.gsub("'", "&#39;")
-  message = message.gsub("\n", "<br>")
+  message = ChatBoard::Utils.escapeHtml(params[:message])
   chatThread = $threadManager.getChatThread(id)
   user = $userManager.getUser(request.ip, true)
   response = {
     status: "failure"
   }
 
-  if chatThread.nil?
+  if chatThread.nil? || message.nil?
     halt 400, response.to_json
   end
 
-  if message.nil?
+  if message.length < 1
     halt 400, response.to_json
   end
 
   chatThread.postChatMessage(user, message)
+
+  if chatThread.chatMessages.length == 1000
+    chatThread.postChatMessage($userManager.god, "レス数が1000に達したゾ〜<br>これ以上は投稿できないゾ〜")
+    chatThread.postChatMessage($userManager.god, "私がレスしたことで実質1001レスだけど")
+    chatThread.postChatMessage($userManager.god, "いや、やっぱり1002レスだった")
+    chatThread.postChatMessage($userManager.god, "いや、やっｐ...")
+  end
+
   response = {
     status: "success"
   }

@@ -7,31 +7,28 @@
   </head>
   <body style="background-color: #E4E4E4;">
     <div class="container-fluid">
-      <header class="header fixed-top" style="background-color: ghostwhite;">
+       <header class="header fixed-top" style="background-color: ghostwhite;">
         <nav class="navbar navbar-light bg-light">
           <a class="navbar-brand fs-1 fw-bold" href="/" style="margin-left: 30px;">
             <%= @header_title %>
           </a>
-          <ul class="list-group list-group-horizontal" style="margin-right: 30px;">
-            <li class="list-group-item" style="border: none; background-color: ghostwhite;">
-              <form action="/api/search" method="post">
-                <div class="form-group d-flex">
-                  <label for="search-box"></label>
-                  <input class="form-control" type="form-control" id="search-box" placeholder="スレッド検索" size="16" required>
-                  <button class="btn btn-outline-dark text-nowrap" type="submit">
-                    <img src="/icons/search.svg" alt="search-icon">
-                    検索
-                  </button>
-                </div>
-              </form>
-            </li>
-            <li class="list-group-item" style="border: none; background-color: ghostwhite;">
-              <a class="nav-link text-decoration-none" href="#">ログイン</a>
-            </li>
+          <div class="d-flex" style="margin-right: 30px;">
+            <form id="search-form" style="margin-right: 10px;">
+              <div class="d-flex">
+                <label class="form-label" for="search-box" hidden>検索</label>
+                <input class="form-control" type="form-control" id="search-box" placeholder="スレッド検索" size="16" required>
+                <button class="btn btn-outline-primary text-nowrap" type="submit">
+                  <img src="/icons/search.svg" alt="search-icon">
+                  検索
+                </button>
+              </div>
+            </form>
+            <a class="nav-link text-decoration-none" href="/create_thread">スレッド作成</a>
+            <a class="nav-link text-decoration-none" href="#">ログイン</a>
           </ul>
         </nav>
       </header>
-      <main style="padding-top: 100px; padding-bottom: 100px;">
+     <main style="padding-top: 100px; padding-bottom: 100px;">
         <div class="d-flex justify-content-between">
           <div>
             <% if @currentBoard != nil %>
@@ -42,9 +39,9 @@
             <% if @threads.length > 0 %>
               <% @threads.reverse_each do |thread| %>
                 <a class="link-dark" style="text-decoration: none;" href="/thread/<%= thread.id %>">
-                  <div class="border bg-light p-3" style="width: 800px; margin-bottom: 10px; background-color: white;">
+                  <div class="border bg-light p-3" style="min-width: 500px; max-width: 1500px; margin-bottom: 10px; background-color: white;">
                     <span class="text-nowrap overflow-hidden" style="color: navy;">
-                      <%= (thread.title.length > 32 ? thread.title[0, 32] + "..." : thread.title) + " (#{thread.chatMessages.length})" %><br>
+                      <%= (thread.title.length > 36 ? thread.title[0, 36] + "..." : thread.title) + " (#{thread.chatMessages.length})" %><br>
                     </span>
                     <span style="color: green; margin-right: 10px;">
                       <%= ChatBoard::Board.get(thread.board) %>
@@ -59,12 +56,14 @@
               <p>現在この板のスレッドはありません。</p>
             <% end %>
           </div>
-          <div class="border bg-light" style="width: 300px; height: 600px;">
-            <% @boards.reverse_each do |board| %>
-              <div class="p-1">
+          <div class="border bg-light p-3" style="width: 300px; min-height: 600px;">
+            <h3 class="text-center">板一覧</h3>
+            <% @boards.each do |board| %>
+              <div>
                 <a class="link-primary" href="/index?board=<%= board %>">
                   <%= ChatBoard::Board.get(board) %>
                 </a>
+                <%= (ChatBoard::Board.get(board) == @currentBoard ? " <-----" : "") %>
               </div>
             <% end %>
           </div>

@@ -13,10 +13,10 @@
             <%= @header_title %>
           </a>
           <div class="d-flex" style="margin-right: 30px;">
-            <form id="search-form" style="margin-right: 10px;">
+            <form action="/search" method="GET" id="search-form" style="margin-right: 10px;">
               <div class="d-flex">
                 <label class="form-label" for="search-box" hidden>検索</label>
-                <input class="form-control" type="form-control" id="search-box" placeholder="スレッド検索" size="16" required>
+                <input class="form-control" type="form-control" id="search-box" name="search" placeholder="スレッド検索" size="16" required>
                 <button class="btn btn-outline-primary text-nowrap" type="submit">
                   <img src="/icons/search.svg" alt="search-icon">
                   検索
@@ -24,7 +24,6 @@
               </div>
             </form>
             <a class="nav-link text-decoration-none" href="/create_thread">スレッド作成</a>
-            <a class="nav-link text-decoration-none" href="#">ログイン</a>
           </ul>
         </nav>
       </header>
@@ -38,19 +37,21 @@
             <% end %>
             <% if @threads.length > 0 %>
               <% @threads.reverse_each do |thread| %>
-                <a class="link-dark" style="text-decoration: none;" href="/thread/<%= thread.id %>">
-                  <div class="border bg-light p-3" style="min-width: 500px; max-width: 1500px; margin-bottom: 10px; background-color: white;">
-                    <span class="text-nowrap overflow-hidden" style="color: navy;">
-                      <%= (thread.title.length > 36 ? thread.title[0, 36] + "..." : thread.title) + " (#{thread.chatMessages.length})" %><br>
-                    </span>
-                    <span style="color: green; margin-right: 10px;">
-                      <%= ChatBoard::Board.get(thread.board) %>
-                    </span>
-                    <span style="color: gray;">
-                      <%= ChatBoard::Utils.toDisplayTime(thread.time_stamp) %>
-                    </span>
-                  </div>
-                </a>
+                <div style="margin-bottom: 10px;">
+                  <a class="link-dark" style="text-decoration: none;" href="/thread/<%= thread.id %>">
+                    <div class="border bg-light p-3" style="min-width: 500px; max-width: 1000px; background-color: white;">
+                      <span class="text-nowrap overflow-hidden" style="color: navy;">
+                        <%= (thread.title.length > 36 ? thread.title[0, 36] + "..." : thread.title) + " (#{thread.chatMessages.length})" %>
+                      </span><br>
+                      <span style="color: green; margin-right: 10px;">
+                        <%= ChatBoard::Board.get(thread.board) %>
+                      </span>
+                      <span style="color: gray;">
+                        <%= ChatBoard::Utils.toDisplayTime(thread.time_stamp) %>
+                      </span>
+                    </div>
+                  </a>
+                </div>
               <% end %>
             <% else %>
               <p>現在この板のスレッドはありません。</p>

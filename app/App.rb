@@ -1,16 +1,27 @@
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'json'
+require 'mysql2'
+require 'active_support/all'
 require "./ChatBoard.rb"
 
 $threadManager = ChatBoard::ChatThreadManager.new
 $userManager = ChatBoard::ChatUserManager.new
+$database = Mysql2::Client.new(
+  host: "app_database",
+  username: "root",
+  password: "root",
+  port: "3306",
+  database: "app"
+)
+$threadManager.load($database)
 
 configure :development do
   register Sinatra::Reloader
 
   get "/reset" do
     $threadManager.chatThreads.clear
+    $threadManager.save($database)
     redirect "/index"
   end
 
@@ -25,6 +36,8 @@ configure :development do
       chatThread.postChatMessage($userManager.god, "埋め")
     end
 
+    $threadManager.save($database)
+
     halt 200, "Success"
   end
 end
@@ -34,7 +47,7 @@ get "/" do
 end
 
 get "/index" do
-  @title = "ホーム"
+  @title = "ホーム - 掲示板"
   @header_title = "掲示板"
   @threads = params["board"].nil? ? $threadManager.chatThreads : $threadManager.chatThreads.select { |thread| thread.board == params["board"] }
   @boards = ChatBoard::Board.all.sort
@@ -44,24 +57,28 @@ get "/index" do
 end
 
 get "/search" do
-  @title = "検索"
+  @title = "検索 - 掲示板"
   @header_title = "掲示板"
+  @search = params["search"]
+  @results = @search.nil? ? Array.new(0) : $threadManager.chatThreads.filter{ |thread| thread.title.include?(@search) }
   
   erb:search
 end
 
 get "/thread/:id" do |id|
   chatThread = $threadManager.getChatThread(id)
+  user = $userManager.getUser(request.ip, true);
 
   @title = chatThread.nil? ? "スレッド" : chatThread.title + " - 掲示板"
   @header_title = "掲示板"
   @thread = chatThread
+  @name = user.name == "名無し" ? nil : user.name
   
   erb:thread
 end
 
 get "/create_thread" do
-  @title = "スレッド作成"
+  @title = "スレッド作成 - 掲示板"
   @header_title = "掲示板"
   @boards = ChatBoard::Board.all.sort
 
@@ -80,7 +97,7 @@ post "/api/create_thread" do
     halt 400, response.to_json
   end
 
-  if title.length > 100 || title.length < 1
+  if title.length > 100 || title.length < 1 || !title.present?
     halt 400, response.to_json
   end
 
@@ -88,12 +105,13 @@ post "/api/create_thread" do
     halt 400, response.to_json
   end
 
-  if message.length > 1000 || message.length < 1
+  if message.length > 1000 || message.length < 1 || !message.present?
     halt 400, response.to_json
   end
 
   user = $userManager.getUser(request.ip, true)
-  chatThread = $threadManager.createChatThread(title, board, ChatBoard::ChatMessage.new(user, message))
+  chatThread = $threadManager.createChatThread(title, board, ChatBoard::ChatMessage.new(user.getShortId, user.name, message))
+  $threadManager.save($database)
   response = {
     status: "success",
     id: chatThread.id
@@ -103,7 +121,8 @@ post "/api/create_thread" do
 end
 
 post "/api/post_message/:id" do |id|
-  message = ChatBoard::Utils.escapeHtml(params[:message])
+  message = ChatBoard::Utils.escapeHtml(params["message"])
+  name = params["name"]
   chatThread = $threadManager.getChatThread(id)
   user = $userManager.getUser(request.ip, true)
   response = {
@@ -114,18 +133,25 @@ post "/api/post_message/:id" do |id|
     halt 400, response.to_json
   end
 
-  if message.length < 1
+  if message.length < 1 || message.length > 1000 || !message.present?
     halt 400, response.to_json
   end
 
+  if chatThread.chatMessages.length >= 1000
+    halt 400, response.to_json
+  end
+
+  if !name.nil? && name.present?
+    user.name = name
+  end
+  
   chatThread.postChatMessage(user, message)
 
   if chatThread.chatMessages.length == 1000
-    chatThread.postChatMessage($userManager.god, "レス数が1000に達したゾ〜<br>これ以上は投稿できないゾ〜")
-    chatThread.postChatMessage($userManager.god, "私がレスしたことで実質1001レスだけど")
-    chatThread.postChatMessage($userManager.god, "いや、やっぱり1002レスだった")
-    chatThread.postChatMessage($userManager.god, "いや、やっｐ...")
+    chatThread.postChatMessage($userManager.god, "コメント数が1000に達しました。<br>これ以上コメントを投稿することはできません。")
   end
+
+  $threadManager.save($database)
 
   response = {
     status: "success"

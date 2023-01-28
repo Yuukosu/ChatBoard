@@ -1,0 +1,3 @@
+CREATE DATABASE app;
+USE app;
+CREATE TABLE thread (id TEXT, json LONGTEXT);

@@ -1,4 +1,4 @@
-require 'sinatra/activerecord'
+require 'json'
 
 module ChatBoard
   module Board
@@ -50,6 +50,7 @@ module ChatBoard
     MATH = "数学板"
     NATIONAL_LANGUAGE = "国語板"
     PHYSICS = "物理板"
+    CALTURE = "趣味板"
 
     def self.all
       self.constants
@@ -63,9 +64,6 @@ module ChatBoard
       list = self.constants.filter{ |board| b == board || b == board.to_s }.map{ |board| eval("#{board}") }
       list.length > 0 ? list[0] : nil
     end
-  end
-
-  class ChatBoardRecord < ActiveRecord::Base
   end
 
   class ChatThreadManager
@@ -85,6 +83,34 @@ module ChatBoard
       list = @chatThreads.filter{ |thread| thread.id == id }
       list.length > 0 ? list[0] : nil
     end
+
+    def load(database)
+      database.query("SELECT * FROM thread").each do |thread|
+        json = JSON.parse(thread["json"])
+        messages = []
+        json["messages"].each do |message|
+          chatMessage = ChatMessage.load(message["id"], message["name"], message["message"], Time.parse(message["time_stamp"]))
+          messages.push(chatMessage)
+        end
+
+        chatThread = ChatThread.load(json["id"], json["title"], json["board"], messages, Time.parse(json['time_stamp']))
+        @chatThreads.push(chatThread)
+      end
+    end
+
+    def save(database)
+      @chatThreads.each do |chatThread|
+        escapedChatThread = chatThread.serialize.to_json
+        database.query("DELETE FROM thread WHERE id=\"#{chatThread.id}\"")
+        database.query("INSERT INTO thread VALUES ('#{chatThread.id}', '#{escapedChatThread}')")
+      end
+      
+      database.query("SELECT * FROM thread").each do |chatThread|
+        if @chatThreads.filter{|t| t.id == chatThread["id"]}.length == 0
+          database.query("DELETE FROM thread WHERE id=\"#{chatThread["id"]}\"")
+        end
+      end
+    end
   end
 
   class ChatThread
@@ -101,7 +127,32 @@ module ChatBoard
     end
 
     def postChatMessage(user, message)
-      @chatMessages.push(ChatMessage.new(user, message))
+      @chatMessages.push(ChatMessage.new(user.getShortId, user.name, message))
+    end
+
+    def serialize
+      messages = []
+      @chatMessages.each do |chatMessage|
+        messages.push(chatMessage.serialize)
+      end
+
+      {
+        id: @id,
+        title: @title,
+        board: @board,
+        messages: messages,
+        time_stamp: @time_stamp
+      }
+    end
+
+    def self.load(id, title, board, chatMessages, time_stamp)
+      chatThread = ChatThread.new(title, board, "")
+      chatThread.id = id
+      chatThread.title = title
+      chatThread.board = board
+      chatThread.chatMessages = chatMessages
+      chatThread.time_stamp = time_stamp
+      chatThread
     end
   end
 
@@ -134,29 +185,48 @@ module ChatBoard
     attr_accessor :ip, :id, :name
 
     def initialize(ip)
+      @name = "名無し"
       @ip = ip
-      @name = "Anonymous"
       @id = SecureRandom.uuid
     end
 
     def getShortId
-      shortName = @id
+      shortId = @id
       if @id.length == 36
-        shortName = ""
-        @id.split("-").each{ |s| shortName += s[0]}
+        shortId = ""
+        @id.split("-").each{ |s| shortId += s[0]}
       end
-      shortName
+      shortId
     end
   end
 
   class ChatMessage
     
-    attr_accessor :user, :message, :time_stamp
+    attr_accessor :id, :name, :message, :time_stamp
 
-    def initialize(user, message)
-      @user = user
+    def initialize(id, name, message)
+      @id = id;
+      @name = name
       @message = message
       @time_stamp = Time.new
+    end
+
+    def serialize()
+      {
+        id: @id.clone.gsub("\"", "\\\""),
+        name: @name.clone.gsub("\"", "\\\""),
+        message: @message.clone.gsub("\"","\\\""),
+        time_stamp: @time_stamp
+      }
+    end
+
+    def self.load(id, name, message, time_stamp)
+      chatMessage = ChatMessage.new(id, name, message)
+      chatMessage.id = id
+      chatMessage.name = name
+      chatMessage.message = message
+      chatMessage.time_stamp = time_stamp
+      chatMessage
     end
   end
 

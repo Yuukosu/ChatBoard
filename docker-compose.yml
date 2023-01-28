@@ -2,8 +2,7 @@ version: '3'
 services:
   db:
     container_name: app_database
-    image: 'mariadb:latest'
-    restart: 'always'
+    build: ./database-docker
     environment:
       MARIADB_ROOT_PASSWORD: root
     ports:
@@ -14,7 +13,7 @@ services:
       - app-network
   app:
     container_name: app
-    build: .
+    build: ./app-docker
     working_dir: '/app'
     command: '/bin/bash -c "sleep 5 && ruby App.rb -o 0.0.0.0"'
     volumes:

@@ -11,7 +11,7 @@ services:
     volumes:
       - './database:/var/lib/mysql'
     networks:
-      - 'app-network'
+      - app-network
   app:
     container_name: app
     build: .
@@ -24,7 +24,7 @@ services:
     depends_on:
       - 'db'
     networks:
-      - 'app-network'
+      - app-network
 networks:
   app-network:
-    driver: bridge
+    driver: 'bridge'

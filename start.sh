@@ -3,14 +3,19 @@
 sudo -v
 
 if [ -z "$(ls | grep -E "^database$")" ] || [ -z "$(ls ./database)" ]; then
-	./init.sh
+	if [ -n "$(./init.sh | grep -E "インストールされていません。$")" ]; then
+		echo "データベースの初期化に失敗しました。"
+		exit 0
+	fi
+fi
+
+if [ -z "$(which docker)" ]; then
+	echo "docker がインストールされていません。"
+	exit 0
 fi
 
 if [ -z "$(which docker-compose)" ]; then
 	echo "docker-compose がインストールされていません。"
-	exit 0
-elif [ -z "$(which docker)" ]; then
-	echo "docker がインストールされていません。"
 	exit 0
 fi
 

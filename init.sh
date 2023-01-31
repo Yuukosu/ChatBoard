@@ -39,11 +39,7 @@ fi
 
 if [ -z "$(docker-compose ps | grep ^app_database)" ]; then
 	echo "Starting database container..."
-	
-	if [ -z "ls | grep ^database$" ]; then
-		mkdir database
-	fi
-
+	mkdir -p database
 	docker-compose up -d db
 	sleep 10
 fi
@@ -51,7 +47,7 @@ fi
 echo "Database Initializing..."
 
 cat > /tmp/init.sql << EOF
-CREATE DATABASE IF NOT EXISTS app;
+CREATE DATABASE IF NOT EXISTS app DEFAULT CHARACTER SET utf8mb4;
 USE app;
 CREATE TABLE IF NOT EXISTS thread (id TEXT, json LONGTEXT);
 EOF

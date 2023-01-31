@@ -10,12 +10,12 @@ services:
     volumes:
       - './database:/var/lib/mysql'
     networks:
-      - app-network
+      - 'app-network'
   app:
     container_name: app
     build: ./app-docker
     working_dir: '/app'
-    command: '/bin/bash -c "sleep 5 && ruby App.rb -o 0.0.0.0"'
+    command: '/bin/bash -c "echo 5秒後に起動します。 && sleep 5 && ruby App.rb -o 0.0.0.0"'
     volumes:
       - './app:/app'
     ports:
@@ -23,7 +23,7 @@ services:
     depends_on:
       - 'db'
     networks:
-      - app-network
+      - 'app-network'
 networks:
   app-network:
     driver: 'bridge'

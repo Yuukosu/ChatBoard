@@ -14,5 +14,5 @@ elif [ -z "$(which docker)" ]; then
 	exit 0
 fi
 
-sudo chown $(whoami):$(whoami) -R ./database
+sudo chown $(whoami):$(whoami) ./database
 docker-compose up --build -d

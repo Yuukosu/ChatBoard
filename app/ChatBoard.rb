@@ -86,11 +86,16 @@ module ChatBoard
 
     def load(database)
       database.query("SELECT * FROM thread").each do |thread|
-        json = JSON.parse(thread["json"])
-        messages = []
-        json["messages"].each do |message|
-          chatMessage = ChatMessage.load(message["id"], message["name"], message["message"], Time.parse(message["time_stamp"]))
-          messages.push(chatMessage)
+        begin
+          json = JSON.parse(thread["json"])
+          messages = []
+          json["messages"].each do |message|
+            chatMessage = ChatMessage.load(message["id"], message["name"], message["message"], Time.parse(message["time_stamp"]))
+            messages.push(chatMessage)
+          end
+        rescue Exception
+          p "スレッド #{thread["id"]} の読み込みに失敗しました。"
+          next
         end
 
         chatThread = ChatThread.load(json["id"], json["title"], json["board"], messages, Time.parse(json['time_stamp']))
@@ -98,11 +103,12 @@ module ChatBoard
       end
     end
 
+    // TODO 絵文字を保存できないバグ修正
     def save(database)
       @chatThreads.each do |chatThread|
-        escapedChatThread = chatThread.serialize.to_json
+        escapedChatThread = chatThread.serialize.to_json.gsub("\"", "\\\"")
         database.query("DELETE FROM thread WHERE id=\"#{chatThread.id}\"")
-        database.query("INSERT INTO thread VALUES ('#{chatThread.id}', '#{escapedChatThread}')")
+        database.query("INSERT INTO thread VALUES (\"#{chatThread.id}\", \"#{escapedChatThread}\")")
       end
       
       database.query("SELECT * FROM thread").each do |chatThread|

@@ -163,8 +163,8 @@ module ChatBoard
     def initialize()
       @users = Array.new
       @god = ChatUser.new("127.0.0.1")
-      @god.name = '<span style="color: red;">神</span>'
-      @god.id = '<span style="color: red">Xx_GOD_xX</span>'
+      @god.name = '神'
+      @god.id = 'Xx_GOD_becomes_GOD_:)_xX'
     end
 
     def registerUser(ip)

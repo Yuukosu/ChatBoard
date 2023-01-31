@@ -2,8 +2,8 @@
 
 sudo -v
 
-if [ -z "$(ls | grep -E "^database$")" ]; then
-	mkdir database
+if [ -z "$(ls | grep -E "^database$")" ] || [ -z "$(ls ./database)" ]; then
+	./init.sh
 fi
 
 if [ -z "$(which docker-compose)" ]; then

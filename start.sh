@@ -2,7 +2,7 @@
 
 sudo -v
 
-if [ -z "$(ls -d ./database)" ]; then
+if [ -z "$(ls | grep -E "^database$")" ]; then
 	mkdir database
 fi
 

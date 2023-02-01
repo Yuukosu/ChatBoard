@@ -35,7 +35,7 @@
               <a class="link-dark" style="text-decoration: none;" href="/thread/<%= result.id %>">
                 <div class="border bg-light p-3" style="min-width: 500px; max-width: 1000px; background-color: white;">
                   <span class="text-nowrap overflow-hidden" style="color: navy">
-                    <%= (result.title.length > 36 ? result.title[0, 36] + "..." : result.title) + " (#{result.chatMessages.length})" %>
+                    <%= (result.title.length > 36 ? ChatBoard::Utils.escapeHtml(result.title[0, 36]) + "..." : ChatBoard::Utils.escapeHtml(result.title)) + " (#{result.chatMessages.length})" %>
                   </span><br>
                   <span style="color: green; margin-right: 10px;">
                     <%= ChatBoard::Board.get(result.board) %>

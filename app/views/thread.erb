@@ -33,7 +33,7 @@
         <% else %>
           <div class="border border-start-0 border-end-0 border-top-0 border-dark" style="padding-bottom: 30px;">
             <h2 style="margin-bottom: 15px;">
-              <%= @thread.title %>
+              <%= ChatBoard::Utils.escapeHtml(@thread.title) %>
             </h2>
             <span>作成日: <%= ChatBoard::Utils.toDisplayTime(@thread.time_stamp) %></span><br>
             <span>コメント: <%= @thread.chatMessages.length %></span>
@@ -42,10 +42,10 @@
             <% @thread.chatMessages.each_with_index do |chatMessage, index| %>
               <div class="border bg-light p-3" style="min-width: 800px; max-width: 1000px; margin-bottom: 10px;">
                 <span><%= index + 1 %></span>
-                <span style="margin-left: 5px; color: green;"><%= chatMessage.name %></span>
+                <span style="margin-left: 5px; color: green;"><%= ChatBoard::Utils.escapeHtml(chatMessage.name) %></span>
                 <span style="margin-left: 5px; color: black;"><%= ChatBoard::Utils.toDisplayTime(chatMessage.time_stamp) %></span>
                 <span style="margin-left: 5px; color: black;">ID: <%= chatMessage.id %></span><br>
-                <span style="color: black;"><%= chatMessage.message %></span>
+                <span style="color: black;"><%= ChatBoard::Utils.escapeHtml(chatMessage.message) %></span>
               </div>
             <% end %>
           </div>

@@ -12,7 +12,10 @@ $database = Mysql2::Client.new(
   username: "root",
   password: "root",
   port: "3306",
-  database: "app"
+  database: "app",
+  charset: "utf8mb4",
+  encoding: "utf8mb4",
+  collation: "utf8mb4_general_ci"
 )
 $threadManager.load($database)
 
@@ -86,9 +89,9 @@ get "/create_thread" do
 end
 
 post "/api/create_thread" do
-  title = ChatBoard::Utils.escapeHtml(params[:title])
+  title = params[:title]
   board = params[:board]
-  message = ChatBoard::Utils.escapeHtml(params[:message])
+  message = params[:message]
   response = {
     status: "failure"
   }
@@ -121,7 +124,7 @@ post "/api/create_thread" do
 end
 
 post "/api/post_message/:id" do |id|
-  message = ChatBoard::Utils.escapeHtml(params["message"])
+  message = params["message"]
   name = params["name"]
   chatThread = $threadManager.getChatThread(id)
   user = $userManager.getUser(request.ip, true)

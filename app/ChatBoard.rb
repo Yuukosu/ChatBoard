@@ -93,6 +93,10 @@ module ChatBoard
             chatMessage = ChatMessage.load(message["id"], message["name"], message["message"], Time.parse(message["time_stamp"]))
             messages.push(chatMessage)
           end
+        rescue JSON::ParserError => e
+          p "スレッド #{thread["id"]} の JSON データの読み込みに失敗しました。"
+          p "#{e}"
+          next
         rescue Exception
           p "スレッド #{thread["id"]} の読み込みに失敗しました。"
           next
@@ -103,10 +107,12 @@ module ChatBoard
       end
     end
 
-    // TODO 絵文字を保存できないバグ修正
     def save(database)
       @chatThreads.each do |chatThread|
-        escapedChatThread = chatThread.serialize.to_json.gsub("\"", "\\\"")
+        serializedChatThread = chatThread.serialize.to_json
+        escapedChatThread = serializedChatThread.gsub("\n", "<br>")
+        escapedChatThread = escapedChatThread.gsub("\\", "\\\\\\")
+        escapedChatThread = escapedChatThread.gsub("\"", "\\\"")
         database.query("DELETE FROM thread WHERE id=\"#{chatThread.id}\"")
         database.query("INSERT INTO thread VALUES (\"#{chatThread.id}\", \"#{escapedChatThread}\")")
       end
@@ -219,9 +225,9 @@ module ChatBoard
 
     def serialize()
       {
-        id: @id.clone.gsub("\"", "\\\""),
-        name: @name.clone.gsub("\"", "\\\""),
-        message: @message.clone.gsub("\"","\\\""),
+        id: @id,
+        name: @name,
+        message: @message,
         time_stamp: @time_stamp
       }
     end

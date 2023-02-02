@@ -39,16 +39,20 @@
               <% @threads.reverse_each do |thread| %>
                 <div style="margin-bottom: 10px;">
                   <a class="link-dark" style="text-decoration: none;" href="/thread/<%= thread.id %>">
-                    <div class="border bg-light p-3" style="min-width: 500px; max-width: 1000px; background-color: white;">
-                      <span class="text-nowrap overflow-hidden" style="color: navy;">
-                        <%= (thread.title.length > 36 ? ChatBoard::Utils.escapeHtml(thread.title[0, 36]) + "..." : ChatBoard::Utils.escapeHtml(thread.title)) + " (#{thread.chatMessages.length})" %>
-                      </span><br>
-                      <span style="color: green; margin-right: 10px;">
-                        <%= ChatBoard::Board.get(thread.board) %>
-                      </span>
-                      <span style="color: gray;">
-                        <%= ChatBoard::Utils.toDisplayTime(thread.time_stamp) %>
-                      </span>
+                    <div class="border bg-light p-3" style="min-width: 800px; max-width: 80%; background-color: white;">
+                      <div>
+                        <span class="text-nowrap overflow-hidden" style="color: navy;">
+                          <%= (thread.title.length > 36 ? ChatBoard::Utils.escapeHtml(thread.title[0, 36]) + "..." : ChatBoard::Utils.escapeHtml(thread.title)) + " (#{thread.chatMessages.length})" %>
+                        </span>
+                      </div>
+                      <div>
+                        <span style="color: green; margin-right: 10px;">
+                          <%= ChatBoard::Board.get(thread.board) %>
+                        </span>
+                        <span style="color: gray;">
+                          <%= ChatBoard::Utils.toDisplayTime(thread.time_stamp) %>
+                        </span>
+                      </div>
                     </div>
                   </a>
                 </div>

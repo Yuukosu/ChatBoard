@@ -22,7 +22,7 @@ $threadManager.load($database)
 configure :development do
   register Sinatra::Reloader
 
-  get "/reset" do
+  post "/reset" do
     $threadManager.chatThreads.clear
     $threadManager.save($database)
     redirect "/index"
@@ -151,7 +151,7 @@ post "/api/post_message/:id" do |id|
   chatThread.postChatMessage(user, message)
 
   if chatThread.chatMessages.length == 1000
-    chatThread.postChatMessage($userManager.god, "コメント数が1000に達しました。<br>これ以上コメントを投稿することはできません。")
+    chatThread.postChatMessage($userManager.god, "コメント数が1000に達しました。\nこれ以上コメントを投稿することはできません。")
   end
 
   $threadManager.save($database)

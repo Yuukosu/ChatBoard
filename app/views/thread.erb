@@ -13,10 +13,10 @@
             <%= @header_title %>
           </a>
           <div class="d-flex" style="margin-right: 30px;">
-            <form id="search-form" style="margin-right: 10px;">
+            <form action="/search" method="GET" id="search-form" style="margin-right: 10px;">
               <div class="d-flex">
                 <label class="form-label" for="search-box" hidden>検索</label>
-                <input class="form-control" type="form-control" id="search-box" placeholder="スレッド検索" size="16" required>
+                <input class="form-control" type="form-control" id="search-box" name="search" placeholder="スレッド検索" size="16" required>
                 <button class="btn btn-outline-primary text-nowrap" type="submit">
                   <img src="/icons/search.svg" alt="search-icon">
                   検索
@@ -40,12 +40,16 @@
           </div>
           <div style="margin-top: 15px; margin-bottom: 15px;">
             <% @thread.chatMessages.each_with_index do |chatMessage, index| %>
-              <div class="border bg-light p-3" style="min-width: 800px; max-width: 1000px; margin-bottom: 10px;">
-                <span><%= index + 1 %></span>
-                <span style="margin-left: 5px; color: green;"><%= ChatBoard::Utils.escapeHtml(chatMessage.name) %></span>
-                <span style="margin-left: 5px; color: black;"><%= ChatBoard::Utils.toDisplayTime(chatMessage.time_stamp) %></span>
-                <span style="margin-left: 5px; color: black;">ID: <%= chatMessage.id %></span><br>
-                <span style="color: black;"><%= ChatBoard::Utils.escapeHtml(chatMessage.message) %></span>
+              <div class="border bg-light p-3" style="width: fit-content; min-width: 500px; max-width: 60%; margin-bottom: 10px;">
+                <div>
+                  <span style="color: black;"><%= index + 1 %></span>
+                  <span class="fw-bold" style="margin-left: 5px; color: green;"><%= ChatBoard::Utils.escapeHtml(chatMessage.name) %></span>
+                  <span style="margin-left: 5px; color: black;"><%= ChatBoard::Utils.toDisplayTime(chatMessage.time_stamp) %></span>
+                  <span style="margin-left: 5px; color: black;">ID: <%= chatMessage.id %></span>
+                </div>
+                <div class="text-break">
+                  <span style="color: black;"><%= ChatBoard::Utils.escapeHtml(chatMessage.message) %></span>
+                </div>
               </div>
             <% end %>
           </div>

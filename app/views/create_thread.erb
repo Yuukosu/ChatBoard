@@ -13,10 +13,10 @@
             <%= @header_title %>
           </a>
           <div class="d-flex" style="margin-right: 30px;">
-            <form id="search-form" style="margin-right: 10px;">
+            <form action="/search" method="GET" id="search-form" style="margin-right: 10px;">
               <div class="d-flex">
                 <label class="form-label" for="search-box" hidden>検索</label>
-                <input class="form-control" type="form-control" id="search-box" placeholder="スレッド検索" size="16" required>
+                <input class="form-control" type="form-control" id="search-box" name="search" placeholder="スレッド検索" size="16" required>
                 <button class="btn btn-outline-primary text-nowrap" type="submit">
                   <img src="/icons/search.svg" alt="search-icon">
                   検索

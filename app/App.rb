@@ -25,7 +25,8 @@ configure :development do
   post "/reset" do
     $threadManager.chatThreads.clear
     $threadManager.save($database)
-    redirect "/index"
+
+    halt 200, "success"
   end
 
   post "/999/:id" do |id|
@@ -41,7 +42,7 @@ configure :development do
 
     $threadManager.save($database)
 
-    halt 200, "Success"
+    halt 200, "success"
   end
 end
 

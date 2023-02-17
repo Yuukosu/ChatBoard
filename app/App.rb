@@ -117,7 +117,7 @@ post "/api/create_thread" do
   chatThread = $threadManager.createChatThread(title, board, ChatBoard::ChatMessage.new(user.getShortId, user.name, message))
   $threadManager.save($database)
   response = {
-    status: "success",
+    status: "Success",
     id: chatThread.id
   }
 
@@ -158,7 +158,7 @@ post "/api/post_message/:id" do |id|
   $threadManager.save($database)
 
   response = {
-    status: "success"
+    status: "Success"
   }
 
   halt 200, response.to_json
